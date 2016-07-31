@@ -42,7 +42,7 @@ Then use it in a project, e.g. for your static files::
             'user': os.environ.get('AWS_ACCESS_KEY'),
             'key': os.environ.get('AWS_SECRET_KEY'),
             'bucket': 'my-assets',
-            'secure': True,
+            'base_url': STATIC_URL,
         },
     }
 

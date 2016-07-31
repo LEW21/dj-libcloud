@@ -19,7 +19,7 @@ Using eu-west-1
             'user': os.environ.get('AWS_ACCESS_KEY'),
             'key': os.environ.get('AWS_SECRET_KEY'),
             'bucket': 'my-assets',
-            'secure': True,
+            'base_url': STATIC_URL,
         },
     }
 
@@ -39,7 +39,7 @@ Google Cloud Storage
             'user': os.environ.get('GOOGLE_ACCESS_KEY'),
             'key': os.environ.get('GOOGLE_SECRET_KEY'),
             'bucket': 'my-assets',
-            'secure': True,
+            'base_url': STATIC_URL,
         },
     }
 
@@ -59,7 +59,7 @@ Rackspace Cloudfiles
             'user': os.environ.get('RACKSPACE_USER_NAME'),
             'key': os.environ.get('RACKSPACE_API_KEY'),
             'bucket': 'my-assets',
-            'secure': True,
+            'base_url': STATIC_URL,
         },
     }
 
@@ -80,7 +80,7 @@ Microsoft Azure
             'user': AZURE_ACCOUNT_NAME,
             'key': os.environ.get('AZURE_ACCOUNT_KEY'),
             'bucket': 'my-assets',
-            'secure': True,
+            'base_url': STATIC_URL,
         },
     }
 

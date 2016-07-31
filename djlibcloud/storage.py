@@ -95,7 +95,7 @@ class LibCloudStorage(Storage):
                 "Unable to create libcloud driver type %s: %s" %
                 (self.provider.get('type'), e))
         self.bucket = self.provider['bucket']   # Limit to one container
-        self.secure = self.provider.get('secure', False)
+        self._base_url = self.provider.get('base_url', None)
 
     def _get_bucket(self):
         """Helper to get bucket object (libcloud container)"""
@@ -165,45 +165,16 @@ class LibCloudStorage(Storage):
             return -1
 
     def url(self, name):
+        if self._base_url:
+            return self._base_url + name
+
         provider_type = self.provider['type'].lower()
         obj = self._get_object(name)
         if not obj:
             return None
-        try:
-            # currently only Cloudfiles supports it
-            url = self.driver.get_object_cdn_url(obj)
-        except NotImplementedError as e:
-            object_path = '%s/%s' % (self.bucket, obj.name)
-            if 's3' in provider_type:
-                base_url = 'http://%s' % self.driver.connection.host
-                url = urljoin(base_url, object_path)
-            elif 'google' in provider_type:
-                url = urljoin('http://storage.googleapis.com', object_path)
-            elif 'azure' in provider_type:
-                base_url = ('http://%s.blob.core.windows.net' %
-                            self.provider['user'])
-                url = urljoin(base_url, object_path)
-            else:
-                raise e
-        if self.secure:
-            if 'cloudfiles' in provider_type:
-                parsed_url = urlparse(url)
-                if parsed_url.scheme != 'http':
-                    return url
-                split_netloc = parsed_url.netloc.split('.')
-                split_netloc[1] = 'ssl'
-                url = urlunparse(
-                    'https',
-                    '.'.join(split_netloc),
-                    parsed_url.path,
-                    parsed_url.params, parsed_url.query,
-                    parsed_url.fragment
-                )
-            if ('s3' in provider_type or
-                    'google' in provider_type or
-                    'azure' in provider_type):
-                url = url.replace('http://', 'https://')
-        return url
+
+        # currently only Cloudfiles supports it
+        return self.driver.get_object_cdn_url(obj)
 
     def modified_time(self, name):
         obj = self._get_object(name)
