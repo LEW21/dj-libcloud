@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 from io import BytesIO
 import os
 
-from django.conf import settings
 from django.core.files.storage import Storage
 from django.core.files.base import File
 from django.core.exceptions import ImproperlyConfigured
@@ -63,16 +62,8 @@ class LibCloudStorage(Storage):
     Django storage derived class using apache libcloud to operate
     on supported providers
     """
-    def __init__(self, provider_name=None, option=None):
-        if provider_name is None:
-            provider_name = getattr(settings,
-                                    'DEFAULT_LIBCLOUD_PROVIDER',
-                                    'default')
-
-        self.provider = settings.LIBCLOUD_PROVIDERS.get(provider_name)
-        if not self.provider:
-            raise ImproperlyConfigured(
-                'LIBCLOUD_PROVIDERS %s not defined or invalid' % provider_name)
+    def __init__(self, config=None):
+        self.provider = config
         extra_kwargs = {}
         if 'region' in self.provider:
             extra_kwargs['region'] = self.provider['region']
@@ -95,7 +86,7 @@ class LibCloudStorage(Storage):
                 "Unable to create libcloud driver type %s: %s" %
                 (self.provider.get('type'), e))
         self.bucket = self.provider['bucket']   # Limit to one container
-        self._base_url = self.provider.get('base_url', None)
+        self.base_url = self.provider['base_url']
 
     def _get_bucket(self):
         """Helper to get bucket object (libcloud container)"""
@@ -165,16 +156,7 @@ class LibCloudStorage(Storage):
             return -1
 
     def url(self, name):
-        if self._base_url:
-            return self._base_url + name
-
-        provider_type = self.provider['type'].lower()
-        obj = self._get_object(name)
-        if not obj:
-            return None
-
-        # currently only Cloudfiles supports it
-        return self.driver.get_object_cdn_url(obj)
+        return self.base_url + name
 
     def modified_time(self, name):
         obj = self._get_object(name)

@@ -29,22 +29,33 @@ Install dj-libcloud::
 
     $ pip install dj-libcloud
 
-Then use it in a project, e.g. for your static files::
+Then use it in a project, e.g. for both your media and static files::
 
     # settings.py
-
-    STATIC_URL = 'https://s3.amazonaws.com/my-assets/'
-    STATICFILES_STORAGE = 'djlibcloud.storage.LibCloudStorage'
 
     LIBCLOUD_PROVIDERS = {
         'default': {
             'type': 'libcloud.storage.types.Provider.S3',
             'user': os.environ.get('AWS_ACCESS_KEY'),
             'key': os.environ.get('AWS_SECRET_KEY'),
-            'bucket': 'my-assets',
-            'base_url': STATIC_URL,
+            'bucket': 'uploaded-media',
+            'base_url': 'https://s3.amazonaws.com/uploaded-media/',
+        },
+        'static': {
+            'type': 'libcloud.storage.types.Provider.S3',
+            'user': os.environ.get('AWS_ACCESS_KEY'),
+            'key': os.environ.get('AWS_SECRET_KEY'),
+            'bucket': 'static-assets',
+            'base_url': 'https://s3.amazonaws.com/static-assets/',
         },
     }
+
+    DEFAULT_FILE_STORAGE = 'djlibcloud.providers.default'
+    MEDIA_URL = LIBCLOUD_PROVIDERS['default']['base_url']
+
+    STATICFILES_STORAGE = 'djlibcloud.providers.static'
+    STATIC_URL = LIBCLOUD_PROVIDERS['static']['base_url']
+
 
 Other LibCloud Providers
 ------------------------

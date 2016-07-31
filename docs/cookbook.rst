@@ -10,60 +10,63 @@ Using eu-west-1
 
 .. code-block:: python
 
-    STATIC_URL = 'https://s3-eu-west-1.amazonaws.com/my-assets/'
-    STATICFILES_STORAGE = 'djlibcloud.storage.LibCloudStorage'
-
     LIBCLOUD_PROVIDERS = {
-        'amazon_s3_eu_west': {
+        'default': {
             'type': 'libcloud.storage.types.Provider.S3_EU_WEST',
             'user': os.environ.get('AWS_ACCESS_KEY'),
             'key': os.environ.get('AWS_SECRET_KEY'),
             'bucket': 'my-assets',
-            'base_url': STATIC_URL,
+            'base_url': 'https://s3-eu-west-1.amazonaws.com/my-assets/',
         },
     }
 
-    DEFAULT_LIBCLOUD_PROVIDER = 'amazon_s3_eu_west'
+    DEFAULT_FILE_STORAGE = 'djlibcloud.providers.default'
+    MEDIA_URL = LIBCLOUD_PROVIDERS['default']['base_url']
+
+    STATICFILES_STORAGE = 'djlibcloud.providers.default'
+    STATIC_URL = LIBCLOUD_PROVIDERS['default']['base_url']
 
 Google Cloud Storage
 --------------------
 
 .. code-block:: python
 
-    STATIC_URL = 'https://storage.googleapis.com/my-assets/'
-    STATICFILES_STORAGE = 'djlibcloud.storage.LibCloudStorage'
-
     LIBCLOUD_PROVIDERS = {
-        'google_cloud_storage': {
+        'default': {
             'type': 'libcloud.storage.types.Provider.GOOGLE_STORAGE',
             'user': os.environ.get('GOOGLE_ACCESS_KEY'),
             'key': os.environ.get('GOOGLE_SECRET_KEY'),
             'bucket': 'my-assets',
-            'base_url': STATIC_URL,
+            'base_url': 'https://storage.googleapis.com/my-assets/',
         },
     }
 
-    DEFAULT_LIBCLOUD_PROVIDER = 'google_cloud_storage'
+    DEFAULT_FILE_STORAGE = 'djlibcloud.providers.default'
+    MEDIA_URL = LIBCLOUD_PROVIDERS['default']['base_url']
+
+    STATICFILES_STORAGE = 'djlibcloud.providers.default'
+    STATIC_URL = LIBCLOUD_PROVIDERS['default']['base_url']
 
 Rackspace Cloudfiles
 --------------------
 
 .. code-block:: python
 
-    STATIC_URL = 'https://<long>-<hash>.ssl.cf5.rackcdn.com'
-    STATICFILES_STORAGE = 'djlibcloud.storage.LibCloudStorage'
-
     LIBCLOUD_PROVIDERS = {
-        'rackspace_cloudfiles': {
+        'default': {
             'type': 'libcloud.storage.types.Provider.CLOUDFILES',
             'user': os.environ.get('RACKSPACE_USER_NAME'),
             'key': os.environ.get('RACKSPACE_API_KEY'),
             'bucket': 'my-assets',
-            'base_url': STATIC_URL,
+            'base_url': 'https://<long>-<hash>.ssl.cf5.rackcdn.com',
         },
     }
 
-    DEFAULT_LIBCLOUD_PROVIDER = 'rackspace_cloudfiles'
+    DEFAULT_FILE_STORAGE = 'djlibcloud.providers.default'
+    MEDIA_URL = LIBCLOUD_PROVIDERS['default']['base_url']
+
+    STATICFILES_STORAGE = 'djlibcloud.providers.default'
+    STATIC_URL = LIBCLOUD_PROVIDERS['default']['base_url']
 
 Microsoft Azure
 ---------------
@@ -71,21 +74,21 @@ Microsoft Azure
 .. code-block:: python
 
     AZURE_ACCOUNT_NAME = os.environ.get('AZURE_ACCOUNT_NAME')
-    STATIC_URL = 'https://%s.blob.core.windows.net/my-assets/' % AZURE_ACCOUNT_NAME
-    STATICFILES_STORAGE = 'djlibcloud.storage.LibCloudStorage'
-
     LIBCLOUD_PROVIDERS = {
-        'microsoft_azure': {
+        'default': {
             'type': 'libcloud.storage.types.Provider.AZURE_BLOBS',
             'user': AZURE_ACCOUNT_NAME,
             'key': os.environ.get('AZURE_ACCOUNT_KEY'),
             'bucket': 'my-assets',
-            'base_url': STATIC_URL,
+            'base_url': 'https://%s.blob.core.windows.net/my-assets/' % AZURE_ACCOUNT_NAME,
         },
     }
 
-    DEFAULT_LIBCLOUD_PROVIDER = 'microsoft_azure'
-
+    DEFAULT_FILE_STORAGE = 'djlibcloud.providers.default'
+    MEDIA_URL = LIBCLOUD_PROVIDERS['default']['base_url']
+    # or
+    STATICFILES_STORAGE = 'djlibcloud.providers.default'
+    STATIC_URL = LIBCLOUD_PROVIDERS['default']['base_url']
 
 Using django-pipeline
 ----------------------
@@ -102,8 +105,15 @@ Using django-pipeline
         """ UNTESTED! """
         pass
 
-
 .. code-block:: python
 
     # settings.py
-    STATICFILES_STORAGE = 'core.storage.PipelineCloudStorage'
+    LIBCLOUD_PROVIDERS = {
+        'static': {
+            'class': 'core.storage.PipelineCloudStorage',
+            'type': ...
+        },
+    }
+
+    STATICFILES_STORAGE = 'djlibcloud.providers.static'
+    STATIC_URL = LIBCLOUD_PROVIDERS['static']['base_url']
